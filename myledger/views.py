@@ -225,6 +225,7 @@ def normalized_dict(grp,usr):
     return ans_dict
 
 #channel i oauth
+# I have registered my app on channel.in but it is not approved till now (March 20, 2022 - 21:45:33). But I will keep this code here (incase app is approved later)
 import requests
 client_id='Rpd9gbaDjlrLiFcF7yKKsY14f9DUT6OmNhwzFNuJ'
 client_secret='g2mqhQDtuGLoAqFmMNs4ebsEWrXMDmvOWWCFg0dee6OB0yVxkAXVf50dOs20ywazwGG8JXaqzQv2O5dbPk17Mjf1kJnPbNRVeRkQFg5Qi0nHvROnKlrUmhbIlt5KWKPJ'
