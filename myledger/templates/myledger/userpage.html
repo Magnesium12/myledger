@@ -1,0 +1,30 @@
+{% extends 'myledger/base.html' %}
+{% block userInfo %}{{theuser.get_full_name}}{% endblock userInfo %}
+{% block groupList %}
+    {% for hisgroup,hisbalance in dict.items %}
+        <li><a href="{% url 'myledger:grpPanel' theuser.id hisgroup.id %}" class="list-group-item list-group-item-action fluid-width:50%">{{ hisgroup.groupName }}
+            {% if hisbalance > 0 %}
+                <span class="badge rounded-pill bg-success">{{hisbalance}}</span>
+            {% elif hisbalance < 0%}
+                <span class="badge rounded-pill bg-danger">{{hisbalance}}</span>
+            {% else %}
+                <span class="badge rounded-pill bg-secondary">{{hisbalance}}</span>
+            {% endif %}
+            </a></li>
+    {%empty%}
+        <li>You have no groups! Make one by the menu option in top right</li>
+    {% endfor %}
+{% endblock groupList %}
+{% block grpPanel %}
+Select a group to view its details
+{% endblock grpPanel %}
+{% block recentTransactions %}
+<h3>Your transactions</h3>
+{% for transac in histransacs %}
+{% if transac.lender == theuser%}
+<li><i>{{transac.transactionDate}}</i>  <b>{{transac.group}} :</b> You gave Rs {{transac.amount}} to {{transac.borrower}} ({{transac.lable}})</li>
+{% else %}
+<li><i>{{transac.transactionDate}}</i>  <b>{{transac.group}} :</b> {{transac.lender}} gave Rs {{transac.amount}} to You ({{transac.lable}})</li>
+{% endif %}
+{% endfor %}
+{% endblock recentTransactions %}

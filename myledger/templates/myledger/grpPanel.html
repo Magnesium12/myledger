@@ -1,0 +1,110 @@
+{% extends 'myledger/base.html' %}
+{% block userInfo %}{{theuser.get_full_name}}{% endblock userInfo %}
+{% block groupList %}
+    {% for hisgroup,hisbalance in dict.items %}
+        <li><a href="{% url 'myledger:grpPanel' theuser.id hisgroup.id %}" class="list-group-item list-group-item-action fluid-width:50%">{{ hisgroup.groupName }}
+            {% if hisbalance > 0 %}
+                <span class="badge rounded-pill bg-success">{{hisbalance}}</span>
+            {% elif hisbalance < 0%}
+                <span class="badge rounded-pill bg-danger">{{hisbalance}}</span>
+            {% else %}
+                <span class="badge rounded-pill bg-secondary">{{hisbalance}}</span>
+            {% endif %}
+            </a></li>
+    {%empty%}
+        <li>You have no groups! Make one by the menu option in top right</li>
+    {% endfor %}
+{% endblock groupList %}
+
+{% block grpPanel %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">{{grp.groupName}}</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'myledger:userpage' theuser.id %}">Home</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Add Member
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown" style="min-width:16rem">
+                <li>Search the user to add</li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <form class="d-flex dropdown-item" method='get' action="{% url 'myledger:userSearch' theuser.id grp.id%}" >
+                    <input class="form-control me-2" type="text" placeholder="Search" aria-label="Search" name='username'>
+                    <button class="btn btn-outline-success" type="submit">Search</button>
+                  </form>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Add Transaction
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown" style="min-width:80rem">
+                <li>add details of Transaction</li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <form class="d-flex dropdown-item" method='post' action="{% url 'myledger:makeTransaction' theuser.id grp.id%}">
+                    {% csrf_token %}
+                    <input class="form-control" type="text" value="I" aria-label="readonly input example" readonly>
+                    <div class="input-group mb-3" >
+                      <select class="form-select" id="inputGroupSelect01" name="owedByWho" required>
+                        <option selected>Choose...</option>
+                        <option value="1">gave</option>
+                        <option value="2">took from</option>
+                      </select>
+                    </div>
+                    <div class="input-group mb-3">
+                      <select class="form-select" id="inputGroupSelect01" name="otherPerson" required>
+                        {% for member in normal_dict.keys %}
+                        <option value="{{member.id}}">{{member}}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <div class="input-group mb-3">
+                      <label for="amount">Amount in Rupees:</label>
+                      <input type="number" id="amount" name="amount" min="1" required> 
+                    </div>
+                    <input class="form-control" type="text" placeholder="Add label" name="lable" aria-label="input">
+                    <button class="btn btn-outline-success" type="submit">Done</button>
+                  </form>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <h3>Your Tally</h3>
+    {% for member,histally in normal_dict.items %}
+    <li>{{member}}
+      {% if histally > 0 %}
+      <span class="badge rounded-pill bg-success">{{histally}}</span>
+      {% elif histally < 0%}
+      <span class="badge rounded-pill bg-danger">{{histally}}</span>
+      {% else %}
+      <span class="badge rounded-pill bg-secondary">{{histally}}</span>
+      {% endif %}
+    </li>
+    {% endfor %}
+    
+    {% endblock grpPanel %}
+    {% block recentTransactions %}
+    <h3>This group's Transactions</h3>
+    {% for transac in transacList %}
+        {% if transac.lender == theuser %}
+            <li><i>{{transac.transactionDate}}</i>  You gave Rs {{transac.amount}} to {{transac.borrower}} ({{transac.lable}})</li>
+        {% elif transac.borrower == theuser %}
+            <li><i>{{transac.transactionDate}}</i>  {{transac.lender}} gave Rs {{transac.amount}} to You ({{transac.lable}})</li>
+        {% else %}
+            <li><i>{{transac.transactionDate}}</i>  {{transac.lender}} gave Rs {{transac.amount}} to {{transac.borrower}} ({{transac.lable}})</li>
+        {% endif %}
+    {% endfor %}
+    {% endblock recentTransactions %}
